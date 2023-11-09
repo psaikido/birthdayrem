@@ -1,0 +1,83 @@
+#!/usr/bin/env bash
+#
+# birthdayrem - 'birthday reminder'
+# Take a list of birthdays in the format:
+# "yyyy-mm-dd, [name]"
+# Print the list in order from 'now'.
+# Calculate a person's current age.
+# LICENCE: GPL
+# Hugh Carroll hughie@carrollonline.co.uk
+
+DATAFILE="$HOME/crypt/birthdays"
+
+# store 'now' as month and day with leading zeroes stripped
+TODAY=$(date +%Y-%m-%d)
+THISYEAR=$(date +%Y)
+THISMONTH=$(date +%m | sed 's/^0*//')
+THISDAY=$(date +%d | sed 's/^0*//')
+
+# store the default IFS ('internal field separator')
+# and replace it with an empty string
+# if we don't do this the lines break at commas
+OLD_IFS="$IFS"
+IFS=$'\n'
+
+# calculate how old the person will be next birthday
+howOld() {
+	if [[ (( $FUTURE -eq 1 )) ]]; then
+		CALCYEAR=$(( $THISYEAR ))
+	else
+		CALCYEAR=$(( $THISYEAR + 1 ))
+	fi
+
+	AGE=$(( $CALCYEAR - $Y))
+}
+
+formatOutput() {
+	FORMATTED=$(printf '%s %8s %7s\n' "$DT" "$NAME" "$AGE")
+}
+
+# sort by month, then day, then year and store as an array
+BIRTHDAYS=( $(sort --field-separator=- -k2 -k3 -k1 $DATAFILE) )
+
+declare -a BEFORE=()
+declare -a AFTER=()
+
+for b in "${BIRTHDAYS[@]}"; do
+	# store just the date part of each line
+	DT=$( printf '%s' $b | cut -d ',' -f1 )
+	NAME=$( printf '%s' $b | cut -d ',' -f2 | sed 's/^ *//' )
+
+	# separate and format the year, month and day
+	Y=$( printf '%s' $DT | cut -d '-' -f1 )
+	M=$( printf '%s' $DT | cut -d '-' -f2 | sed 's/^0*//' )
+	D=$( printf '%s' $DT | cut -d '-' -f3 | sed 's/^0*//' )
+
+	# put birthday dates that are great than or equal to 'today' into
+	# an 'after' array, other into a 'before' array
+	if [[ (( $M -ge $THISMONTH )) && (( $D -ge $THISDAY)) ]]; then
+		FUTURE=1
+		howOld
+		formatOutput
+		AFTER[${#AFTER[@]}]="$FORMATTED"
+	else
+		FUTURE=0
+		howOld
+		formatOutput
+		BEFORE[${#BEFORE[@]}]="$FORMATTED"
+	fi
+
+done
+
+# merge the 'after' and 'before' arrays
+NEXT=("${AFTER[@]}" "${BEFORE[@]}")
+
+# output 
+printf '%s %8s %s\n' "yyyy-mm-dd" "NAME" "DUE-AGE"
+printf '%s %8s %s\n' "----------" "--------" "-------"
+for i in "${NEXT[@]}"; do
+	echo "$i" 
+done
+
+# restore the IFS to default
+IFS="$OLD_IFS"
