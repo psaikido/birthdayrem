@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+#
+# b-rem - 'birthday reminder'
+# Take a list of birthdays in the format:
+# "yyyy-mm-dd, [name]"
+# Print the next 3
+# LICENCE: GPL
+# Hugh Carroll hughie@carrollonline.co.uk
+
+DATAFILE="$HOME/bin/birthdays"
+# cat $DATEFILE
+
+# store 'now' as month and day with leading zeroes stripped
+TODAY=$(date +%Y-%m-%d)
+THISMONTH=$(date +%m | sed 's/^0*//')
+THISDAY=$(date +%d | sed 's/^0*//')
+
+# store the default IFS ('internal field separator')
+# and replace it with an empty string
+# if we don't do this the lines break at commas
+OLD_IFS="$IFS"
+IFS=$'\n'
+
+# sort by month, then day, then year and store as an array
+BIRTHDAYS=( $(sort --field-separator=- -k2 -k3 -k1 $DATAFILE) )
+
+declare -a BEFORE=()
+declare -a AFTER=()
+
+for i in "${BIRTHDAYS[@]}"; do
+	# store just the date part of each line
+	DT=$( echo $i | cut -d ',' -f1 )
+
+	# get the month and day out of it
+	M=$( printf '%s' $DT | cut -d '-' -f2 | sed 's/^0*//' )
+	D=$( printf '%s' $DT | cut -d '-' -f3 | sed 's/^0*//' )
+	# printf '%s\n' "$DT - $COUNT: $M $D $THISMONTH:"
+
+	if [[ (( $M -ge $THISMONTH )) && (( $D -ge $THISDAY)) ]]; then
+		AFTER[${#AFTER[@]}]=$i
+	else
+		BEFORE[${#BEFORE[@]}]=$i
+	fi
+done
+
+for j in "${AFTER[@]}"; do
+	echo $j
+done
+
+for k in "${BEFORE[@]}"; do
+	echo $k
+done
+
+# restore the IFS to default
+IFS="$OLD_IFS"
