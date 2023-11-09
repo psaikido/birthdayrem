@@ -9,7 +9,8 @@
 # Hugh Carroll hughie@carrollonline.co.uk
 # https://github.com/psaikido/birthdayrem
 
-DATAFILE="$HOME/crypt/birthdays"
+DATAFILE="$HOME/.config/birthdayrem/birthdays"
+NAMEWIDTH=10
 
 # Store 'now' as month and day with leading zeroes stripped.
 TODAY=$(date +%Y-%m-%d)
@@ -36,7 +37,16 @@ howOld() {
 
 # Prettify the output.
 formatOutput() {
-	FORMATTED=$(printf '%s %8s %3s\n' "$DT" "$NAME" "$AGE")
+	FORMATTED=$(printf "%s %${NAMEWIDTH}s %3s\n" "$DT" "$NAME" "$AGE")
+}
+
+# Output
+output() {
+	printf "%s %${NAMEWIDTH}s %s\n" "yyyy-mm-dd" "NAME" "AGE"
+	printf "%s %${NAMEWIDTH}s %s\n" "----------" "--------" "---"
+	for i in "${NEXT[@]}"; do
+		echo "$i" 
+	done
 }
 
 # Sort by month, then day, then year and store as an array.
@@ -75,11 +85,7 @@ done
 NEXT=("${AFTER[@]}" "${BEFORE[@]}")
 
 # Output.
-printf '%s %8s %s\n' "yyyy-mm-dd" "NAME" "AGE"
-printf '%s %8s %s\n' "----------" "--------" "---"
-for i in "${NEXT[@]}"; do
-	echo "$i" 
-done
+output
 
 # Restore the IFS to default.
 IFS="$OLD_IFS"
