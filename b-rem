@@ -21,14 +21,19 @@ THISDAY=$(date +%d | sed 's/^0*//')
 OLD_IFS="$IFS"
 IFS=$'\n'
 
+# calculate how old the person will be next birthday
 howOld() {
 	if [[ (( $FUTURE -eq 1 )) ]]; then
-		AGE=$(( $THISYEAR - $Y ))
+		CALCYEAR=$(( $THISYEAR ))
 	else
-		AGE=$(( $THISYEAR + 1 - $Y))
+		CALCYEAR=$(( $THISYEAR + 1 ))
 	fi
 
-	# printf '%s\n' "$b will be $AGE" 
+	AGE=$(( $CALCYEAR - $Y))
+}
+
+formatOutput() {
+	FORMATTED=$(printf '%s %8s %7s\n' "$DT" "$NAME" "$AGE")
 }
 
 # sort by month, then day, then year and store as an array
@@ -39,7 +44,8 @@ declare -a AFTER=()
 
 for b in "${BIRTHDAYS[@]}"; do
 	# store just the date part of each line
-	DT=$( echo $b | cut -d ',' -f1 )
+	DT=$( printf '%s' $b | cut -d ',' -f1 )
+	NAME=$( printf '%s' $b | cut -d ',' -f2 | sed 's/^ *//' )
 
 	# separate and format the year, month and day
 	Y=$( printf '%s' $DT | cut -d '-' -f1 )
@@ -51,11 +57,13 @@ for b in "${BIRTHDAYS[@]}"; do
 	if [[ (( $M -ge $THISMONTH )) && (( $D -ge $THISDAY)) ]]; then
 		FUTURE=1
 		howOld
-		AFTER[${#AFTER[@]}]="$b, due to be $AGE"
+		formatOutput
+		AFTER[${#AFTER[@]}]="$FORMATTED"
 	else
 		FUTURE=0
 		howOld
-		BEFORE[${#BEFORE[@]}]="$b, due to be $AGE"
+		formatOutput
+		BEFORE[${#BEFORE[@]}]="$FORMATTED"
 	fi
 
 done
@@ -64,6 +72,8 @@ done
 NEXT=("${AFTER[@]}" "${BEFORE[@]}")
 
 # output 
+printf '%s %8s %s\n' "yyyy-mm-dd" "NAME" "DUE-AGE"
+printf '%s %8s %s\n' "----------" "--------" "-------"
 for i in "${NEXT[@]}"; do
 	echo "$i" 
 done
