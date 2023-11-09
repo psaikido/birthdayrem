@@ -3,7 +3,7 @@
 # b-rem - 'birthday reminder'
 # Take a list of birthdays in the format:
 # "yyyy-mm-dd, [name]"
-# Print the next 3
+# Print the list in order from 'now'
 # LICENCE: GPL
 # Hugh Carroll hughie@carrollonline.co.uk
 
@@ -11,6 +11,7 @@ DATAFILE="$HOME/crypt/birthdays"
 
 # store 'now' as month and day with leading zeroes stripped
 TODAY=$(date +%Y-%m-%d)
+THISYEAR=$(date +%Y)
 THISMONTH=$(date +%m | sed 's/^0*//')
 THISDAY=$(date +%d | sed 's/^0*//')
 
@@ -19,6 +20,16 @@ THISDAY=$(date +%d | sed 's/^0*//')
 # if we don't do this the lines break at commas
 OLD_IFS="$IFS"
 IFS=$'\n'
+
+howOld() {
+	if [[ (( $FUTURE -eq 1 )) ]]; then
+		AGE=$(( $THISYEAR - $Y ))
+	else
+		AGE=$(( $THISYEAR + 1 - $Y))
+	fi
+
+	# printf '%s\n' "$b will be $AGE" 
+}
 
 # sort by month, then day, then year and store as an array
 BIRTHDAYS=( $(sort --field-separator=- -k2 -k3 -k1 $DATAFILE) )
@@ -30,25 +41,31 @@ for b in "${BIRTHDAYS[@]}"; do
 	# store just the date part of each line
 	DT=$( echo $b | cut -d ',' -f1 )
 
-	# get the month and day out of it
+	# separate and format the year, month and day
+	Y=$( printf '%s' $DT | cut -d '-' -f1 )
 	M=$( printf '%s' $DT | cut -d '-' -f2 | sed 's/^0*//' )
 	D=$( printf '%s' $DT | cut -d '-' -f3 | sed 's/^0*//' )
 
 	# put birthday dates that are great than or equal to 'today' into
 	# an 'after' array, other into a 'before' array
 	if [[ (( $M -ge $THISMONTH )) && (( $D -ge $THISDAY)) ]]; then
-		AFTER[${#AFTER[@]}]=$b
+		FUTURE=1
+		howOld
+		AFTER[${#AFTER[@]}]="$b, due to be $AGE"
 	else
-		BEFORE[${#BEFORE[@]}]=$b
+		FUTURE=0
+		howOld
+		BEFORE[${#BEFORE[@]}]="$b, due to be $AGE"
 	fi
+
 done
 
 # merge the 'after' and 'before' arrays
 NEXT=("${AFTER[@]}" "${BEFORE[@]}")
 
-# output the next 3 birthdays
-for i in {0..2}; do
-	echo "${NEXT[$i]}" 
+# output 
+for i in "${NEXT[@]}"; do
+	echo "$i" 
 done
 
 # restore the IFS to default
