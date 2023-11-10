@@ -38,7 +38,7 @@ howOld() {
 		if [[ (( $DM -lt $M )) ]]; then
 			CALCYEAR=$(( $DY - 1))
 
-		elif [[ (( $DD -eq $M)) ]]; then
+		elif [[ (( $DM -eq $M)) ]]; then
 			if [[ (( $DD -lt $D )) ]]; then
 				CALCYEAR=$(( $DY - 1))
 			fi
