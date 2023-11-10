@@ -65,17 +65,25 @@ for b in "${BIRTHDAYS[@]}"; do
 	M=$( printf '%s' $DT | cut -d '-' -f2 | sed 's/^0*//' )
 	D=$( printf '%s' $DT | cut -d '-' -f3 | sed 's/^0*//' )
 
-	# Put birthday dates that are great than or equal to 'today' into
-	# an 'after' array, other into a 'before' array.
-	if [[ (( $M -ge $THISMONTH )) && (( $D -ge $THISDAY)) ]]; then
+	# Put birthday dates that are in the future of this year into
+	# an 'after' array, others into a 'before' array.
+	FUTURE=0
+
+	if [[ (( $M -gt $THISMONTH )) ]]; then
 		FUTURE=1
-		howOld
-		formatOutput
+	elif [[ (( $M -eq $THISMONTH )) ]]; then
+		# The day needs to be checked too
+		if [[ (( $D -ge $THISDAY )) ]]; then
+			FUTURE=1
+		fi
+	fi
+
+	howOld
+	formatOutput
+
+	if [[ (( $FUTURE -eq 1 )) ]]; then
 		AFTER[${#AFTER[@]}]="$FORMATTED"
 	else
-		FUTURE=0
-		howOld
-		formatOutput
 		BEFORE[${#BEFORE[@]}]="$FORMATTED"
 	fi
 
