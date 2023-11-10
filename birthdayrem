@@ -11,6 +11,7 @@
 
 DATAFILE="$HOME/.config/birthdayrem/birthdays"
 NAMEWIDTH=10
+COLWIDTH=8
 
 # Store 'now' as month and day with leading zeroes stripped.
 TODAY=$(date +%Y-%m-%d)
@@ -24,12 +25,32 @@ THISDAY=$(date +%d | sed 's/^0*//')
 OLD_IFS="$IFS"
 IFS=$'\n'
 
-# Calculate a person's current age.
+# Calculate a person's current age or their age at the time they died.
 howOld() {
-	if [[ (( $FUTURE -eq 1 )) ]]; then
-		CALCYEAR=$(( $THISYEAR - 1 ))
+	if [[ -n "$DIED" ]]; then
+		# Test whether they died before their birthday.
+		DY=$( printf '%s' $DIED | cut -d '-' -f1 )
+		DM=$( printf '%s' $DIED | cut -d '-' -f2 | sed 's/^0*//' )
+		DD=$( printf '%s' $DIED | cut -d '-' -f3 | sed 's/^0*//' )
+
+		CALCYEAR=$DY
+
+		if [[ (( $DM -lt $M )) ]]; then
+			CALCYEAR=$(( $DY - 1))
+
+		elif [[ (( $DD -eq $M)) ]]; then
+			if [[ (( $DD -lt $D )) ]]; then
+				CALCYEAR=$(( $DY - 1))
+			fi
+		fi
+
 	else
-		CALCYEAR=$(( $THISYEAR ))
+		# Test whether it is before or after their birthday.
+		if [[ (( $FUTURE -eq 1 )) ]]; then
+			CALCYEAR=$(( $THISYEAR - 1 ))
+		else
+			CALCYEAR=$(( $THISYEAR ))
+		fi
 	fi
 
 	AGE=$(( $CALCYEAR - $Y))
@@ -37,13 +58,19 @@ howOld() {
 
 # Prettify the output.
 formatOutput() {
-	FORMATTED=$(printf "%s %${NAMEWIDTH}s %3s\n" "$DT" "$NAME" "$AGE")
+	if [[ -n "$DIED" ]]; then
+		LASTFIELD="-"
+	else
+		LASTFIELD=$(($AGE+1))
+	fi
+
+	FORMATTED=$(printf "%s %${NAMEWIDTH}s %${COLWIDTH}s %${COLWIDTH}s\n" "$DT" "$NAME" "$AGE" "$LASTFIELD")
 }
 
 # Output
 output() {
-	printf "%s %${NAMEWIDTH}s %s\n" "yyyy-mm-dd" "NAME" "AGE"
-	printf "%s %${NAMEWIDTH}s %s\n" "----------" "--------" "---"
+	printf "%s %${NAMEWIDTH}s %${COLWIDTH}s %${COLWIDTH}s\n" "yyyy-mm-dd" "NAME" "AGE-NOW" "NEXT"
+	printf "%s\n" "--------------------------------------" 
 	for i in "${NEXT[@]}"; do
 		echo "$i" 
 	done
@@ -56,14 +83,15 @@ declare -a BEFORE=()
 declare -a AFTER=()
 
 for b in "${BIRTHDAYS[@]}"; do
-	# Store just the date part of each line.
-	DT=$( printf '%s' $b | cut -d ',' -f1 )
-	NAME=$( printf '%s' $b | cut -d ',' -f2 | sed 's/^ *//' )
-
 	# Separate and format the year, month and day.
+	DT=$( printf '%s' $b | cut -d ',' -f1 )
 	Y=$( printf '%s' $DT | cut -d '-' -f1 )
 	M=$( printf '%s' $DT | cut -d '-' -f2 | sed 's/^0*//' )
 	D=$( printf '%s' $DT | cut -d '-' -f3 | sed 's/^0*//' )
+
+	# Store names and death dates if any.
+	NAME=$( printf '%s' $b | cut -d ',' -f2 | sed 's/^ *//' )
+	DIED=$( printf '%s' $b | cut -d ',' -f3 | sed 's/^ *//' )
 
 	# Put birthday dates that are in the future of this year into
 	# an 'after' array, others into a 'before' array.
