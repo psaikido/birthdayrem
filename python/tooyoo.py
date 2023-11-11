@@ -7,6 +7,7 @@ from pathlib import Path
 
 class Tooyoo:
     def __init__(self):
+        self.people = []
         pass
 
     def run(self):
@@ -16,8 +17,10 @@ class Tooyoo:
 
         for line in lines:
             line = line.replace("\n", "")
-            arrLine = self.parseLine(line)
-            print(arrLine)
+            person = self.parseLine(line)
+            self.people.append(person)
+
+        self.output(self.people)
 
         data.close()
 
@@ -34,15 +37,27 @@ class Tooyoo:
 
         try:
             deathDate = pieces[2].split('-')
-            deathDate = {
-                "dYear": deathDate[0],
-                "dMonth": deathDate[1],
-                "dDay": deathDate[2],
-            }
+            person["dYear"] = deathDate[0]
+            person["dMonth"] = deathDate[1]
+            person["dDay"] = deathDate[2]
         except:
-            deathDate = {}
+            person["dYear"] = ""
+            person["dMonth"] = ""
+            person["dDay"] = ""
 
-        return [person, deathDate]
+        return person
+
+    def output(self, people):
+        print("yyyy-mm-dd {:>10} AGE".format("NAME"))
+        print("-------------------------")
+        for person in people:
+            print("{}-{}-{} {:>10}".format(
+                person["year"], 
+                person["month"],
+                person["day"],
+                person["name"]
+                )
+            )
 
 
 if __name__ == "__main__":
