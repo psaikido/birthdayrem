@@ -18,24 +18,29 @@ BEGIN {
 	count = 0
 	countBefore = 0
 	countAfter = 0
+
+	PROCINFO["sorted_in"] = "@ind_num_asc"
 }
 
 
 {
 	age = calcAge($1, now)
+	key = sprintf("%s-%d",tmpMonth tmpDay, count)
 	row = sprintf("%s", formatRow(tmpYear, tmpMonth, tmpDay, $2, age))
 
 	if (isBefore($1, now)) {
-		before[countBefore] = row
-		countBefore += 1
+		before[key] = row
 	} else {
-		after[countAfter] = row
-		countAfter += 1
+		after[key] = row
 	}
+
+	count += 1
 }
 
 
 END {
+	count = 0
+
 	for (i in after) {
 		res[count] = after[i]
 		count += 1
@@ -47,7 +52,7 @@ END {
 	}
 
 	for (k = 0; k < count; k++) {
-		printf("%s %d\n", res[k], k)
+		printf("%s\n", res[k])
 	}
 }
 
