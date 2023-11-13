@@ -1,13 +1,11 @@
 #! /usr/bin/python
 
-# Happy Birthday 'too yoo'.
-
 from pathlib import Path
 import operator
 from datetime import date
 
 
-class Tooyoo:
+class Birthdayrem:
     def __init__(self):
         self.people = []
         self.today = date.today()
@@ -89,7 +87,7 @@ class Tooyoo:
             if int(p['month']) > self.today.month:
                 after.append(p)
             elif int(p['month']) == self.today.month:
-                if p['day'] >= self.today.day:
+                if int(p['day']) >= self.today.day:
                     after.append(p)
                 else:
                     before.append(p)
@@ -137,4 +135,4 @@ class Tooyoo:
 
 
 if __name__ == "__main__":
-    Tooyoo().run()
+    Birthdayrem().run()
