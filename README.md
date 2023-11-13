@@ -1,7 +1,7 @@
 # birthdayrem
  
  
-A birthday reminder script.
+A birthday reminder script done in awk, bash & python.
 
 Take a list of birthdays in the format:
 "yyyy-mm-dd, [name]"
@@ -25,6 +25,26 @@ git clone https://github.com/psaikido/birthdayrem
 mkdir ~/.config/birthdayrem
 ```
 
+## Usage
+
 Copy [your repo path]/birthdays to ~/.config/birthdayrem and edit it with your own data.
 
-Put this repo somewhere in your $PATH.
+
+### awk
+
+```
+awk -f [repo]/awk/birthdayrem.awk ~/.config/birthdayrem/birthdays
+```
+
+### bash
+
+```
+
+chmod +x [repo]/bash/birthdayrem
+[repo]/bash/birthdayrem
+```
+### python
+
+```
+python [repo]/python/birthdayrem.py
+```
