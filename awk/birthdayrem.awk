@@ -12,21 +12,26 @@ BEGIN {
 	tmpMonth = ""
 	tmpDay = ""
 
-	printf("%s\n", formatRow("yyyy", "mm", "dd", "NAME", "AGE"))
-	printf("%s\n", "-----------------------")
+	printf("%s\n", formatRow("yyyy-mm-dd", "NAME", "AGE-NOW", "NEXT"))
+	printf("%s\n", "---------------------------------------")
 
 	count = 0
-	countBefore = 0
-	countAfter = 0
 
 	PROCINFO["sorted_in"] = "@ind_num_asc"
 }
 
 
 {
-	age = calcAge($1, now)
+	age = calcAge($1, now, $3)
+
+	if (length($3) > 0) {
+		bnext = "-"
+	} else {
+		bnext = age + 1
+	}
+
 	key = sprintf("%s-%d",tmpMonth tmpDay, count)
-	row = sprintf("%s", formatRow(tmpYear, tmpMonth, tmpDay, $2, age))
+	row = sprintf("%s", formatRow($1, $2, age, bnext))
 
 	if (isBefore($1, now)) {
 		before[key] = row
@@ -87,9 +92,14 @@ function isBefore(start, end) {
 }
 
 
-function calcAge(start, end) {
+function calcAge(start, end, died) {
 	split(start, arStart, "-")
-	split(end, arEnd, "-")
+
+	if (length(died) > 0) {
+		split(died, arEnd, "-")
+	} else {
+		split(end, arEnd, "-")
+	}
 
 	sYear = arStart[1]
 	eYear = arEnd[1]
@@ -117,7 +127,7 @@ function calcAge(start, end) {
 	}
 }
 
-function formatRow(y, m, d, name, age) {
-	return sprintf("%s %s %s %7s %4s", y, m, d, name, age)
+function formatRow(birthday, name, age, bnext) {
+	return sprintf("%s %10s %8s %8s", birthday, name, age, bnext)
 }
 
