@@ -70,7 +70,7 @@ formatOutput() {
 # Output
 output() {
 	printf "%s %${NAMEWIDTH}s %${COLWIDTH}s %${COLWIDTH}s\n" "yyyy-mm-dd" "NAME" "AGE-NOW" "NEXT"
-	printf "%s\n" "--------------------------------------" 
+	printf "%s\n" "---------------------------------------" 
 	for i in "${NEXT[@]}"; do
 		echo "$i" 
 	done
