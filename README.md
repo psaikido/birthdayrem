@@ -1,7 +1,7 @@
 # birthdayrem
  
  
-A birthday reminder script done in awk, bash, python & php.
+A birthday reminder script done in awk, bash, python, php & lua.
 
 Take a list of birthdays in the format:
 "yyyy-mm-dd, [name]"
@@ -54,3 +54,10 @@ python [repo]/python/birthdayrem.py
 ```
 php [repo]/php/birthdayrem.php
 ```
+
+### lua
+
+```
+lua [repo]/lua/birthdayrem.lua
+```
+
