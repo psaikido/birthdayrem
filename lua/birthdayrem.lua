@@ -5,11 +5,28 @@ local curYear = os.date("%Y")
 local curMonth = os.date("%m")
 local curDay = os.date("%d")
 
+
+local function hasHadBirthday(sMonth, sDay, eMonth, eDay)
+	if (sMonth < eMonth) then
+		return true
+	elseif (sMonth == eMonth) then
+		if (sDay < eDay) then
+			return true
+		else
+			return false
+		end
+	else
+		return false
+	end
+end
+
 local function parse(file)
 	local lines = {}
 	local person = {}
 	local bYear, bMonth, bDay = "", "", ""
 	local dYear, dMonth, dDay = "", "", ""
+	local alive = true
+	local hadBirthday = false
 
 	for row in file do
 		local birthday = string.match(row, "^(%g*),")
@@ -20,9 +37,14 @@ local function parse(file)
 		local deathday = string.match(row, "^%g*,%s%g*,%s(%g*)$")
 		if deathday ~= nil then
 			dYear, dMonth, dDay = string.match(deathday, "(%d*)-(%d*)-(%d*)")
+			alive = false
+			hadBirthday = hasHadBirthday(bMonth, bDay, dMonth, dDay)
 		else
 			dYear, dMonth, dDay = "", "", ""
+			alive = true
+			hadBirthday = hasHadBirthday(bMonth, bDay, curMonth, curDay)
 		end
+
 
 		person = {
 			['name'] = name,
@@ -32,6 +54,8 @@ local function parse(file)
 			['dYear'] = dYear,
 			['dMonth'] = dMonth,
 			['dDay'] = dDay,
+			['alive'] = alive,
+			['hadBirthday'] = hadBirthday
 		}
 
 		table.insert(lines, person)
@@ -60,32 +84,28 @@ local function dateCompare(a, b)
 	return false
 end
 
-local function calcAge(sYear, eYear, dYear, after)
-	local age = 0
+local function calcAges(people)
+	for _, p in pairs(people) do
+		if (p.alive) then
+			if (p.hadBirthday) then
+				p.age = curYear - p.bYear
+			else
+				p.age = (curYear - p.bYear) - 1
+			end
 
-	if (dYear ~= "") then
-		if (after) then
-			age = (dYear - sYear) - 1
+			p.next = p.age + 1 
 		else
-			age = dYear - sYear
+			if (p.hadBirthday) then
+				p.age = p.dYear - p.bYear
+			else
+				p.age = (p.dYear- p.bYear) - 1
+			end
+
+			p.next = "-"
 		end
-	else
-		age = eYear - sYear
 	end
 
-	return age
-end
-
-local function calcNext(sYear, eYear, dYear)
-	local next = ""
-
-	if (dYear ~= "") then
-		next = "-"
-	else
-		next = (eYear - sYear) + 1
-	end
-
-	return next
+	return people
 end
 
 local function timeSort(people)
@@ -94,29 +114,18 @@ local function timeSort(people)
 	local merge = {}
 
 	for _, p in pairs(people) do
-		if (p.bMonth < curMonth) then
+		if (p.hadBirthday) then
 			table.insert(before, p)
-		elseif (p.bMonth == curMonth) then
-			if (p.bDay < curDay) then
-				table.insert(before, p)
-			else
-				table.insert(after, p)
-			end
 		else
 			table.insert(after, p)
 		end
 	end
 
 	for _, p in pairs(after) do
-		p['age'] = calcAge(p.bYear, (curYear - 1), p.dYear, true)
-		p['next'] = calcNext(p.bYear, (curYear - 1), p.dYear)
 		table.insert(merge, p)
-
 	end
 
 	for _, p in pairs(before) do
-		p['age'] = calcAge(p.bYear, curYear, p.dYear, false)
-		p['next'] = calcNext(p.bYear, curYear, p.dYear)
 		table.insert(merge, p)
 	end
 
@@ -135,7 +144,7 @@ local function output(people)
 	for _, p in pairs(people) do
 		print(string.format(
 			"%4s-%2s-%2s %10s %8s %8s",
-			p['bYear'], p['bMonth'], p['bDay'], p['name'], p['age'], p['next']
+			p.bYear, p.bMonth, p.bDay, p.name, p.age, p.next
 			)
 		)
 	end
@@ -144,4 +153,5 @@ end
 local people = parse(File)
 table.sort(people, dateCompare)
 people = timeSort(people)
+people = calcAges(people)
 output(people)
