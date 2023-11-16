@@ -3,6 +3,18 @@
 #include <errno.h>
 #include <string.h>
 
+struct person {
+	int bYear;
+};
+
+struct person parseLine(char* ln) {
+	struct person p;
+
+	p.bYear = 43;
+
+	return p;
+}
+
 int main() {
 	char filename[100];
 	strcpy (filename, getenv("HOME"));
@@ -19,11 +31,12 @@ int main() {
 	}
 
 	char line[256];
+	struct person x;
 
     while (fgets(line, sizeof(line), f)) {
-        printf("%s", line); 
+		x = parseLine(line);
+		printf("%s :: %d\n", line, x.bYear);
     }
-
 
 	fclose(f);
 
