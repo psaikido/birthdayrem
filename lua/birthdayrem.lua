@@ -1,4 +1,5 @@
-local File = io.lines('/home/hughie/.config/birthdayrem/birthdays')
+local home = os.getenv('HOME')
+local File = io.lines(home .. '/.config/birthdayrem/birthdays')
 
 local curYear = os.date("%Y")
 local curMonth = os.date("%m")
