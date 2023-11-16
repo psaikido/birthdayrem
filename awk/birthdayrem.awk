@@ -30,7 +30,7 @@ BEGIN {
 		bnext = age + 1
 	}
 
-	key = sprintf("%s-%d",tmpMonth tmpDay, count)
+	key = sprintf("%s-%d",tmpMonth tmpDay, tmpYear, count)
 	row = sprintf("%s", formatRow($1, $2, age, bnext))
 
 	if (isBefore($1, now)) {
