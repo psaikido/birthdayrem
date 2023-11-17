@@ -4,12 +4,15 @@
 #include <string.h>
 
 struct person {
-	char* birthday;
+	char birthday[10];
 	char* bYear;
 	char* bMonth;
 	char* bDay;
 	char* name;
-	char* deathday;
+	char deathday[10];
+	char* dYear;
+	char* dMonth;
+	char* dDay;
 };
 
 struct person parseLine(char* ln) {
@@ -17,20 +20,28 @@ struct person parseLine(char* ln) {
 
 	char *token = ",\n";
 
-	char *birthday = strtok(ln, token);
-	char *name = strtok(NULL, token);
-	char *deathday = strtok(NULL, token);
+	char *b = strtok(ln, token);
+	strcpy(p.birthday, b);
+
+	p.name = strtok(NULL, token);
+	char *d = strtok(NULL, token);
 
 	token = "-";
-	char *ch_bYear = strtok(birthday, token);
-	char *ch_bMonth = strtok(NULL, token);
-	char *ch_bDay = strtok(NULL, token);
+	p.bYear = strtok(b, token);
+	p.bMonth = strtok(NULL, token);
+	p.bDay = strtok(NULL, token);
 
-	p.birthday = birthday;
-	p.bYear = ch_bYear;
-	p.bMonth = ch_bMonth;
-	p.bDay = ch_bDay;
-	p.name = name; p.deathday = deathday;
+	if (d != NULL) {
+		strcpy(p.deathday, d);
+		p.dYear = strtok(d, token);
+		p.dMonth = strtok(NULL, token);
+		p.dDay = strtok(NULL, token);
+	} else {
+		strcpy(p.deathday, "");
+		p.dYear = "";
+		p.dMonth = "";
+		p.dDay = "";
+	}
 
 	return p;
 }
@@ -55,7 +66,10 @@ int main() {
 
     while (fgets(line, sizeof(line), f)) {
 		x = parseLine(line);
-		printf("%s %s %s %s %s\n", x.bYear, x.bMonth, x.bDay, x.name, x.deathday);
+		printf(
+			"%s %s %s %s %s %s %s %s %s\n", 
+			x.birthday, x.bYear, x.bMonth, x.bDay, x.name, x.deathday, x.dYear, x.dMonth, x.dDay
+		);
     }
 
 	fclose(f);
