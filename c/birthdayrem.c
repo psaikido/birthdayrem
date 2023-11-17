@@ -4,13 +4,33 @@
 #include <string.h>
 
 struct person {
-	int bYear;
+	char* birthday;
+	char* bYear;
+	char* bMonth;
+	char* bDay;
+	char* name;
+	char* deathday;
 };
 
 struct person parseLine(char* ln) {
 	struct person p;
 
-	p.bYear = 43;
+	char *token = ",\n";
+
+	char *birthday = strtok(ln, token);
+	char *name = strtok(NULL, token);
+	char *deathday = strtok(NULL, token);
+
+	token = "-";
+	char *ch_bYear = strtok(birthday, token);
+	char *ch_bMonth = strtok(NULL, token);
+	char *ch_bDay = strtok(NULL, token);
+
+	p.birthday = birthday;
+	p.bYear = ch_bYear;
+	p.bMonth = ch_bMonth;
+	p.bDay = ch_bDay;
+	p.name = name; p.deathday = deathday;
 
 	return p;
 }
@@ -35,7 +55,7 @@ int main() {
 
     while (fgets(line, sizeof(line), f)) {
 		x = parseLine(line);
-		printf("%s :: %d\n", line, x.bYear);
+		printf("%s %s %s %s %s\n", x.bYear, x.bMonth, x.bDay, x.name, x.deathday);
     }
 
 	fclose(f);
