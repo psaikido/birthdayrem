@@ -3,20 +3,73 @@
 #include <errno.h>
 #include <string.h>
 
-struct person {
+FILE* getFile(); 
+struct Person parseLine(char* ln);
+
+struct Person {
+	char* name;
 	char birthday[10];
 	char* bYear;
 	char* bMonth;
 	char* bDay;
-	char* name;
 	char deathday[10];
 	char* dYear;
 	char* dMonth;
 	char* dDay;
 };
 
-struct person parseLine(char* ln) {
-	struct person p;
+void output(struct Person people[], int count) {
+	for (int i = 0; i < count; i++) {
+		printf("%d: %s\n", i, people[i].name);
+	}
+}
+
+int main() {
+	FILE *f = getFile();
+
+	char line[256];
+	struct Person p[100];
+
+	int i = 0;
+
+    while (fgets(line, sizeof(line), f)) {
+		p[i] = parseLine(line);
+		// printf(
+		// 	"%d: %s %s %s %s %s %s %s %s %s\n", 
+		// 	i, p[i].birthday, p[i].bYear, p[i].bMonth, p[i].bDay, p[i].name, p[i].deathday, p[i].dYear, p[i].dMonth, p[i].dDay
+		// );
+
+		i++;
+    }
+
+	fclose(f);
+
+	// output(p, i);
+	printf("%s\n", p[4].name);
+
+	return 0;
+}
+
+FILE* getFile() {
+	char filename[100];
+	strcpy (filename, getenv("HOME"));
+	strcat (filename, "/.config/birthdayrem/birthdays");
+
+	FILE *f = NULL;
+	
+	errno = 0;
+	f = fopen(filename, "r");
+
+	if (f == NULL) {
+		fprintf(stderr, "Error opening %s for reading, errno: %d\n", filename, errno);
+		exit(1);
+	} else {
+		return f;
+	}
+}
+
+struct Person parseLine(char* ln) {
+	struct Person p;
 
 	char *token = ",\n";
 
@@ -46,33 +99,3 @@ struct person parseLine(char* ln) {
 	return p;
 }
 
-int main() {
-	char filename[100];
-	strcpy (filename, getenv("HOME"));
-	strcat (filename, "/.config/birthdayrem/birthdays");
-
-	FILE *f = NULL;
-	
-	errno = 0;
-	f = fopen(filename, "r");
-
-	if (f == NULL) {
-		fprintf(stderr, "Error opening %s for reading, errno: %d\n", filename, errno);
-		exit(1);
-	}
-
-	char line[256];
-	struct person x;
-
-    while (fgets(line, sizeof(line), f)) {
-		x = parseLine(line);
-		printf(
-			"%s %s %s %s %s %s %s %s %s\n", 
-			x.birthday, x.bYear, x.bMonth, x.bDay, x.name, x.deathday, x.dYear, x.dMonth, x.dDay
-		);
-    }
-
-	fclose(f);
-
-	return 0;
-}
