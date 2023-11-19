@@ -3,49 +3,30 @@
 #include <errno.h>
 #include <string.h>
 
+typedef struct Person {
+	char name[50];
+	char birthday[20];
+	char deathday[20];
+} person;
+
 FILE* getFile(); 
-struct Person parseLine(char* ln);
-
-struct Person {
-	char* name;
-	char birthday[10];
-	char* bYear;
-	char* bMonth;
-	char* bDay;
-	char deathday[10];
-	char* dYear;
-	char* dMonth;
-	char* dDay;
-};
-
-void output(struct Person people[], int count) {
-	for (int i = 0; i < count; i++) {
-		printf("%d: %s\n", i, people[i].name);
-	}
-}
+person parseLine(char* ln);
+void output(person p[], int count); 
 
 int main() {
 	FILE *f = getFile();
 
-	char line[256];
-	struct Person p[100];
+	person p[100];
 
 	int i = 0;
+	char line[256];
 
     while (fgets(line, sizeof(line), f)) {
-		p[i] = parseLine(line);
-		// printf(
-		// 	"%d: %s %s %s %s %s %s %s %s %s\n", 
-		// 	i, p[i].birthday, p[i].bYear, p[i].bMonth, p[i].bDay, p[i].name, p[i].deathday, p[i].dYear, p[i].dMonth, p[i].dDay
-		// );
-
-		i++;
+		p[i++] = parseLine(line);
     }
 
 	fclose(f);
-
-	// output(p, i);
-	printf("%s\n", p[4].name);
+	output(p, i);
 
 	return 0;
 }
@@ -68,34 +49,59 @@ FILE* getFile() {
 	}
 }
 
-struct Person parseLine(char* ln) {
-	struct Person p;
+person parseLine(char* ln) {
+	person p;
 
-	char *token = ",\n";
+	char* line = strdup(ln);
+	char* token;
+	int count = 0;
+	int commaCount = 0;
 
-	char *b = strtok(ln, token);
-	strcpy(p.birthday, b);
-
-	p.name = strtok(NULL, token);
-	char *d = strtok(NULL, token);
-
-	token = "-";
-	p.bYear = strtok(b, token);
-	p.bMonth = strtok(NULL, token);
-	p.bDay = strtok(NULL, token);
-
-	if (d != NULL) {
-		strcpy(p.deathday, d);
-		p.dYear = strtok(d, token);
-		p.dMonth = strtok(NULL, token);
-		p.dDay = strtok(NULL, token);
-	} else {
-		strcpy(p.deathday, "");
-		p.dYear = "";
-		p.dMonth = "";
-		p.dDay = "";
+	for (int i = 0; line[i] != 0; i++) {
+		if (line[i] == ',') commaCount++;
 	}
 
+	while((token = strtok_r(line, ",\n", &line)) != NULL) {
+		if (count == 0) strcpy(p.birthday, token);
+		if (count == 1) strcpy(p.name, token);
+		if (count == 2) strcpy(p.deathday, token);
+		count++;
+	}
+
+	// token = "-";
+	// char ch_bYear[4] = strtok(b, token);
+	// strcpy(p.bYear, ch_bYear);
+	//
+	// char ch_bMonth[2] = strtok(NULL, token);
+	// strcpy(p.bMonth, ch_bMonth);
+	//
+	// char ch_bDay[2] = strtok(NULL, token);
+	// strcpy(p.bDay, ch_bDay);
+	//
+	// if (p.deathday == NULL) {
+	// 	strcpy(p.deathday, "");
+	// 	// p.dYear = strtok(d, token);
+	// 	// p.dMonth = strtok(NULL, token);
+	// 	// p.dDay = strtok(NULL, token);
+	// } else {
+	// 	// p.dYear = "";
+	// 	// p.dMonth = "";
+	// 	// p.dDay = "";
+	// }
+
 	return p;
+}
+
+void output(person p[], int count) {
+	for (int i = 0; i < count; i++) {
+		// printf(
+		// 	"%d: %s %s %s %s %s %s %s %s %s\n", 
+		// 	i, p[i].birthday, p[i].bYear, p[i].bMonth, p[i].bDay, p[i].name, p[i].deathday, p[i].dYear, p[i].dMonth, p[i].dDay
+		// );
+		printf(
+			"%2d: %s %s %s\n", 
+			i, p[i].birthday, p[i].name, p[i].deathday
+		);
+	}
 }
 
