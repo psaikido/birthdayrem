@@ -18,6 +18,7 @@ typedef struct Person {
 FILE* getFile(); 
 person parseLine(char* ln);
 void output(person p[], int count); 
+int compare(const void *p1, const void *p2);
 
 int main() {
 	FILE *f = getFile();
@@ -32,9 +33,26 @@ int main() {
     }
 
 	fclose(f);
+
+	// Put in date order.
+	qsort(p, i, sizeof(person), compare);
 	output(p, i);
 
 	return 0;
+}
+
+int compare(const void *p1, const void *p2) {
+	person *person1 = (person *)p1;
+	person *person2 = (person *)p2;
+
+	int monthCompare = strcmp(person1->bMonth, person2->bMonth);
+
+	if (monthCompare == 0) {
+		int dayCompare = strcmp(person1->bDay, person2->bDay);
+		return dayCompare;
+	} else {
+		return monthCompare;
+	}
 }
 
 FILE* getFile() {
