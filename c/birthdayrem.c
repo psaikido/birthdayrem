@@ -6,7 +6,13 @@
 typedef struct Person {
 	char name[50];
 	char birthday[20];
+	char bYear[5];
+	char bMonth[3];
+	char bDay[3];
 	char deathday[20];
+	char dYear[5];
+	char dMonth[3];
+	char dDay[3];
 } person;
 
 FILE* getFile(); 
@@ -61,6 +67,11 @@ person parseLine(char* ln) {
 		if (line[i] == ',') commaCount++;
 	}
 
+	strcpy(p.deathday, "");
+	strcpy(p.dYear, "");
+	strcpy(p.dMonth, "");
+	strcpy(p.dDay, "");
+
 	while((token = strtok_r(line, ",\n", &line)) != NULL) {
 		if (count == 0) strcpy(p.birthday, token);
 		if (count == 1) strcpy(p.name, token);
@@ -68,26 +79,8 @@ person parseLine(char* ln) {
 		count++;
 	}
 
-	// token = "-";
-	// char ch_bYear[4] = strtok(b, token);
-	// strcpy(p.bYear, ch_bYear);
-	//
-	// char ch_bMonth[2] = strtok(NULL, token);
-	// strcpy(p.bMonth, ch_bMonth);
-	//
-	// char ch_bDay[2] = strtok(NULL, token);
-	// strcpy(p.bDay, ch_bDay);
-	//
-	// if (p.deathday == NULL) {
-	// 	strcpy(p.deathday, "");
-	// 	// p.dYear = strtok(d, token);
-	// 	// p.dMonth = strtok(NULL, token);
-	// 	// p.dDay = strtok(NULL, token);
-	// } else {
-	// 	// p.dYear = "";
-	// 	// p.dMonth = "";
-	// 	// p.dDay = "";
-	// }
+	sscanf(p.birthday, "%4s-%2s-%2s", p.bYear, p.bMonth, p.bDay);
+	sscanf(p.deathday, "%4s-%2s-%2s", p.dYear, p.dMonth, p.dDay);
 
 	return p;
 }
@@ -99,8 +92,8 @@ void output(person p[], int count) {
 		// 	i, p[i].birthday, p[i].bYear, p[i].bMonth, p[i].bDay, p[i].name, p[i].deathday, p[i].dYear, p[i].dMonth, p[i].dDay
 		// );
 		printf(
-			"%2d: %s %s %s\n", 
-			i, p[i].birthday, p[i].name, p[i].deathday
+			"%s %s %s\n", 
+			p[i].birthday, p[i].name, p[i].deathday
 		);
 	}
 }
