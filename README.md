@@ -29,6 +29,8 @@ mkdir ~/.config/birthdayrem
 
 Copy [your repo path]/birthdays to ~/.config/birthdayrem and edit it with your own data.
 
+If all the languages are installed the ./test.sh script will run all the programs.
+
 
 ### awk
 
