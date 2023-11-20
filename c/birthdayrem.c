@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
+#include <time.h>
+
 
 typedef struct Person {
 	char name[50];
@@ -15,10 +17,14 @@ typedef struct Person {
 	char dDay[3];
 } person;
 
+
 FILE* getFile(); 
 person parseLine(char* ln);
 void output(person p[], int count); 
-int compare(const void *p1, const void *p2);
+int dateSort(const void *p1, const void *p2);
+// int beforeAfter(person *people[]); 
+int getNow(int* m, int* d); 
+
 
 int main() {
 	FILE *f = getFile();
@@ -35,13 +41,37 @@ int main() {
 	fclose(f);
 
 	// Put in date order.
-	qsort(p, i, sizeof(person), compare);
+	qsort(p, i, sizeof(person), dateSort);
+	// beforeAfter(*p);
+
 	output(p, i);
 
 	return 0;
 }
 
-int compare(const void *p1, const void *p2) {
+
+int getNow(int* m, int* d) {
+	time_t t = time(NULL);
+    struct tm *tm = localtime(&t);
+    char month[3];
+    char day[3];
+    strftime(month, sizeof(month), "%m", tm);
+    strftime(day, sizeof(day), "%d", tm);
+	*m = atoi(month);
+	*d = atoi(day);
+
+	return 0;
+}
+
+
+// int beforeAfter(person *people[]) {
+// 	int nowMonth, nowDay;
+// 	getNow(&nowMonth, &nowDay);
+// 	return 0;
+// }
+
+
+int dateSort(const void *p1, const void *p2) {
 	person *person1 = (person *)p1;
 	person *person2 = (person *)p2;
 
@@ -54,6 +84,7 @@ int compare(const void *p1, const void *p2) {
 		return monthCompare;
 	}
 }
+
 
 FILE* getFile() {
 	char filename[100];
@@ -72,6 +103,7 @@ FILE* getFile() {
 		return f;
 	}
 }
+
 
 person parseLine(char* ln) {
 	person p;
@@ -102,6 +134,7 @@ person parseLine(char* ln) {
 
 	return p;
 }
+
 
 void output(person p[], int count) {
 	for (int i = 0; i < count; i++) {
