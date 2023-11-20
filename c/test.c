@@ -1,13 +1,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
-typedef struct Person {
-	char* birthday;
-} person;
+
+int getNow(int* m, int* d) {
+	time_t t = time(NULL);
+    struct tm *tm = localtime(&t);
+    char month[3];
+    char day[3];
+    strftime(month, sizeof(month), "%m", tm);
+    strftime(day, sizeof(day), "%d", tm);
+	*m = atoi(month);
+	*d = atoi(day);
+}
+
 
 int main() {
-	person p;
-	strcpy(p.birthday, "thing");
-	printf("%s\n", p.birthday);
+	int m, d;
+	getNow(&m, &d);
+	printf("%d %d\n", m, d);
 }

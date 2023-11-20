@@ -5,27 +5,27 @@
 #include <time.h>
 
 
-typedef struct Person {
+typedef struct person {
 	char name[50];
 	char birthday[20];
 	int bYear;
 	int bMonth;
 	int bDay;
 	char deathday[20];
-	char dYear[5];
-	char dMonth[3];
-	char dDay[3];
+	int dYear;
+	int dMonth;
+	int dDay;
 } person;
 
-// typedef struct Now {
-// 	int nMonth;
-// 	int nDay;
-// } now;
+typedef struct now {
+	int nMonth;
+	int nDay;
+} now;
 
 
 FILE* getFile(); 
 person parseLine(char* ln);
-void output(person p[], int count); 
+void output(person p[], int count, int mode); 
 int dateSort(const void *p1, const void *p2);
 // int beforeAfter(person *people[]); 
 int getNow(int* m, int* d); 
@@ -49,7 +49,7 @@ int main() {
 	qsort(p, i, sizeof(person), dateSort);
 	// beforeAfter(*p);
 
-	output(p, i);
+	output(p, i, 0);
 
 	return 0;
 }
@@ -142,9 +142,6 @@ person parseLine(char* ln) {
 	}
 
 	strcpy(p.deathday, "");
-	strcpy(p.dYear, "");
-	strcpy(p.dMonth, "");
-	strcpy(p.dDay, "");
 
 	while((token = strtok_r(line, ",\n", &line)) != NULL) {
 		if (count == 0) strcpy(p.birthday, token);
@@ -153,31 +150,43 @@ person parseLine(char* ln) {
 		count++;
 	}
 
-	char tmpYear[5];
-	char tmpMonth[3];
-	char tmpDay[3];
+	char b_tmpYear[5];
+	char b_tmpMonth[3];
+	char b_tmpDay[3];
 
-	sscanf(p.birthday, "%4s-%2s-%2s", tmpYear, tmpMonth, tmpDay);
-	sscanf(p.deathday, "%4s-%2s-%2s", p.dYear, p.dMonth, p.dDay);
+	sscanf(p.birthday, "%4s-%2s-%2s", b_tmpYear, b_tmpMonth, b_tmpDay);
 
-	p.bYear = atoi(tmpYear);
-	p.bMonth = atoi(tmpMonth);
-	p.bDay = atoi(tmpDay);
+	p.bYear = atoi(b_tmpYear);
+	p.bMonth = atoi(b_tmpMonth);
+	p.bDay = atoi(b_tmpDay);
+
+	char d_tmpYear[5];
+	char d_tmpMonth[3];
+	char d_tmpDay[3];
+
+	sscanf(p.deathday, "%4s-%2s-%2s", d_tmpYear, d_tmpMonth, d_tmpDay);
+
+	p.dYear = atoi(d_tmpYear);
+	p.dMonth = atoi(d_tmpMonth);
+	p.dDay = atoi(d_tmpDay);
 
 	return p;
 }
 
 
-void output(person p[], int count) {
+void output(person p[], int count, int mode) {
 	for (int i = 0; i < count; i++) {
-		printf(
-			"%d: %s %d %d %d %s %s %s %s %s\n", 
-			i, p[i].birthday, p[i].bYear, p[i].bMonth, p[i].bDay, p[i].name, p[i].deathday, p[i].dYear, p[i].dMonth, p[i].dDay
-		);
-		// printf(
-		// 	"%s %s %s\n", 
-		// 	p[i].birthday, p[i].name, p[i].deathday
-		// );
+		if (mode == 0) {
+			printf(
+				"%s %s %s\n", 
+				p[i].birthday, p[i].name, p[i].deathday
+			);
+		} else {
+			printf(
+				"%d: %s %d %d %d %s %s %d %d %d\n", 
+				i, p[i].birthday, p[i].bYear, p[i].bMonth, p[i].bDay, p[i].name, p[i].deathday, p[i].dYear, p[i].dMonth, p[i].dDay
+			);
+		}
 	}
 }
 
