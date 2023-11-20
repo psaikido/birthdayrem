@@ -15,20 +15,27 @@ typedef struct person {
 	int dYear;
 	int dMonth;
 	int dDay;
+	int alive;
+	int hadBirthday;
+	int age;
+	int next;
 } person;
 
+
 typedef struct now {
-	int nMonth;
-	int nDay;
+	int year;
+	int month;
+	int day;
 } now;
 
 
 FILE* getFile(); 
 person parseLine(char* ln);
-void output(person p[], int count, int mode); 
 int dateSort(const void *p1, const void *p2);
-// int beforeAfter(person *people[]); 
-int getNow(int* m, int* d); 
+now setNow(); 
+person* beforeOrAfterBirthday(person p[], int count);
+person* calcAges(person p[], int count);
+void output(person p[], int count, int mode); 
 
 
 int main() {
@@ -47,33 +54,115 @@ int main() {
 
 	// Put in date order.
 	qsort(p, i, sizeof(person), dateSort);
-	// beforeAfter(*p);
 
-	output(p, i, 0);
+	// Those whose birthdays are yet to come this year go on top.
+	person *sorted = beforeOrAfterBirthday(p, i);
+
+	// Get the ages-now and next.
+	person *withAges = calcAges(sorted, i);
+
+	output(withAges, i, 0);
 
 	return 0;
 }
 
 
-int getNow(int* m, int* d) {
+person* calcAges(person p[], int count) {
+	now n = setNow();
+
+	for (int i = 0; i < count; i++) {
+		if (p[i].alive == 1) {
+			if (p[i].hadBirthday) {
+				p[i].age = n.year - p[i].bYear;
+			} else {
+				p[i].age = (n.year - p[i].bYear) - 1;
+			}
+
+			p[i].next = p[i].age + 1;
+		} else {
+			if (p[i].hadBirthday) {
+				p[i].age = p[i].dYear - p[i].bYear;
+			} else {
+				p[i].age = (p[i].dYear - p[i].bYear) - 1;
+			}
+
+			p[i].next = -1;
+		}
+	}
+
+	return p;
+}
+
+
+now setNow() {
+	now n;
+
 	time_t t = time(NULL);
     struct tm *tm = localtime(&t);
+
+    char year[5];
     char month[3];
     char day[3];
+
+    strftime(year, sizeof(year), "%Y", tm);
     strftime(month, sizeof(month), "%m", tm);
     strftime(day, sizeof(day), "%d", tm);
-	*m = atoi(month);
-	*d = atoi(day);
 
-	return 0;
+	n.year = atoi(year);
+	n.month = atoi(month);
+	n.day = atoi(day);
+
+	return n;
 }
 
 
-// int beforeAfter(person *people[]) {
-// 	int nowMonth, nowDay;
-// 	getNow(&nowMonth, &nowDay);
-// 	return 0;
-// }
+person* beforeOrAfterBirthday(person p[], int count) {
+	now n = setNow();
+
+	person before[100];
+	person after[100];
+
+	int countBefore = 0;
+	int countAfter = 0;
+	int countRes = 0;
+	int i;
+
+	for (i = 0; i < count; i++) {
+		if (strlen(p[i].deathday) > 0) {
+			p[i].alive = 0;
+		} else {
+			p[i].alive = 1;
+		}
+
+		if (p[i].bMonth < n.month) {
+			p[i].hadBirthday = 1;
+			before[countBefore++] = p[i];
+		} else if (p[i].bMonth == n.month) {
+			if (p[i].bDay < n.day) {
+				p[i].hadBirthday = 1;
+				before[countBefore++] = p[i];
+			}
+		} else {
+			p[i].hadBirthday = 0;
+			after[countAfter++] = p[i];
+		}
+	}
+
+	// Reorder main array with those who are yet to have their birthdays on top.
+	person res[100];
+
+	for (i = 0; i < countAfter; i++) {
+		res[countRes++] = after[i];
+	}
+
+	for (i = 0; i < countBefore; i++) {
+		res[countRes++] = before[i];
+	}
+
+	p = res;
+
+	return p;
+}
 
 
 int dateSort(const void *p1, const void *p2) {
@@ -175,16 +264,35 @@ person parseLine(char* ln) {
 
 
 void output(person p[], int count, int mode) {
+	char next[3];
+
+	printf(
+		"%s %10s %7s %7s\n", 
+		"yyyy-mm-dd", "NAME", "AGE-NOW", "NEXT" 
+	);
+
+	printf(
+		"%32s\n", 
+		"-------------------------------------" 
+	);
+
 	for (int i = 0; i < count; i++) {
 		if (mode == 0) {
+			// The 'next' field can be either an integer or a hyphen if the person has died.
+			if (p[i].next >= 0) {
+				sprintf(next, "%d", p[i].next);
+			} else {
+				strcpy(next, "-");
+			}
+
 			printf(
-				"%s %s %s\n", 
-				p[i].birthday, p[i].name, p[i].deathday
+				"%s %10s %7d %7s\n", 
+				p[i].birthday, p[i].name, p[i].age, next
 			);
 		} else {
 			printf(
-				"%d: %s %d %d %d %s %s %d %d %d\n", 
-				i, p[i].birthday, p[i].bYear, p[i].bMonth, p[i].bDay, p[i].name, p[i].deathday, p[i].dYear, p[i].dMonth, p[i].dDay
+				"%d: %s %d %d %d %s %s %d %d %d %d %d %d %d\n", 
+				i, p[i].birthday, p[i].bYear, p[i].bMonth, p[i].bDay, p[i].name, p[i].deathday, p[i].dYear, p[i].dMonth, p[i].dDay, p[i].hadBirthday, p[i].alive, p[i].age, p[i].next
 			);
 		}
 	}
