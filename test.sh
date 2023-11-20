@@ -19,3 +19,6 @@ lua ./lua/birthdayrem.lua
 
 printf "\n%s\n" "c"
 ./c/birthdayrem
+
+printf "\n%s\n" "node"
+./node/birthdayrem.js

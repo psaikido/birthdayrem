@@ -1,7 +1,7 @@
 # birthdayrem
  
  
-A birthday reminder script done in awk, bash, python, php, lua & c.
+A birthday reminder script done in awk, bash, python, php, lua, c & node.
 
 Take a list of birthdays in the format:
 "yyyy-mm-dd, [name]"
@@ -74,3 +74,9 @@ gcc birthdayrem.c -o birthdayrem
 ./birthdayrem
 ```
 
+### node
+
+```
+chmod +x [repo]/node/birthdayrem.js
+[repo]/node/birthdayrem.js
+```
