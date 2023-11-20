@@ -224,11 +224,6 @@ person parseLine(char* ln) {
 	char* line = strdup(ln);
 	char* token;
 	int count = 0;
-	int commaCount = 0;
-
-	for (int i = 0; line[i] != 0; i++) {
-		if (line[i] == ',') commaCount++;
-	}
 
 	strcpy(p.deathday, "");
 
