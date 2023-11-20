@@ -8,14 +8,19 @@
 typedef struct Person {
 	char name[50];
 	char birthday[20];
-	char bYear[5];
-	char bMonth[3];
-	char bDay[3];
+	int bYear;
+	int bMonth;
+	int bDay;
 	char deathday[20];
 	char dYear[5];
 	char dMonth[3];
 	char dDay[3];
 } person;
+
+// typedef struct Now {
+// 	int nMonth;
+// 	int nDay;
+// } now;
 
 
 FILE* getFile(); 
@@ -75,13 +80,32 @@ int dateSort(const void *p1, const void *p2) {
 	person *person1 = (person *)p1;
 	person *person2 = (person *)p2;
 
-	int monthCompare = strcmp(person1->bMonth, person2->bMonth);
+	// Cast date parts to integers from the pointers 'person1' and 2.
+	int y1 = person1->bYear; 
+	int m1 = person1->bMonth; 
+	int d1 = person1->bDay; 
+	int y2 = person2->bYear; 
+	int m2 = person2->bMonth; 
+	int d2 = person2->bDay; 
 
-	if (monthCompare == 0) {
-		int dayCompare = strcmp(person1->bDay, person2->bDay);
-		return dayCompare;
+	// Sort by month, then day then year.
+	if (m1 < m2) {
+		return -1;
+	} else if (m1 == m2) {
+		if (d1 < d2) {
+			return -1;
+		} else if (d1 == d2) {
+			if (y1 <= y2) {
+				return -1;
+			} else {
+				return 1;
+			}
+			return 0;
+		} else {
+			return 1;
+		}
 	} else {
-		return monthCompare;
+		return 1;
 	}
 }
 
@@ -129,8 +153,16 @@ person parseLine(char* ln) {
 		count++;
 	}
 
-	sscanf(p.birthday, "%4s-%2s-%2s", p.bYear, p.bMonth, p.bDay);
+	char tmpYear[5];
+	char tmpMonth[3];
+	char tmpDay[3];
+
+	sscanf(p.birthday, "%4s-%2s-%2s", tmpYear, tmpMonth, tmpDay);
 	sscanf(p.deathday, "%4s-%2s-%2s", p.dYear, p.dMonth, p.dDay);
+
+	p.bYear = atoi(tmpYear);
+	p.bMonth = atoi(tmpMonth);
+	p.bDay = atoi(tmpDay);
 
 	return p;
 }
@@ -138,14 +170,14 @@ person parseLine(char* ln) {
 
 void output(person p[], int count) {
 	for (int i = 0; i < count; i++) {
-		// printf(
-		// 	"%d: %s %s %s %s %s %s %s %s %s\n", 
-		// 	i, p[i].birthday, p[i].bYear, p[i].bMonth, p[i].bDay, p[i].name, p[i].deathday, p[i].dYear, p[i].dMonth, p[i].dDay
-		// );
 		printf(
-			"%s %s %s\n", 
-			p[i].birthday, p[i].name, p[i].deathday
+			"%d: %s %d %d %d %s %s %s %s %s\n", 
+			i, p[i].birthday, p[i].bYear, p[i].bMonth, p[i].bDay, p[i].name, p[i].deathday, p[i].dYear, p[i].dMonth, p[i].dDay
 		);
+		// printf(
+		// 	"%s %s %s\n", 
+		// 	p[i].birthday, p[i].name, p[i].deathday
+		// );
 	}
 }
 
