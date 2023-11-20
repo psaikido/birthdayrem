@@ -267,13 +267,13 @@ void output(person p[], int count, int mode) {
 	char next[3];
 
 	printf(
-		"%s %10s %7s %7s\n", 
+		"%s %10s %8s %8s\n", 
 		"yyyy-mm-dd", "NAME", "AGE-NOW", "NEXT" 
 	);
 
 	printf(
-		"%32s\n", 
-		"-------------------------------------" 
+		"%34s\n", 
+		"---------------------------------------" 
 	);
 
 	for (int i = 0; i < count; i++) {
@@ -286,7 +286,7 @@ void output(person p[], int count, int mode) {
 			}
 
 			printf(
-				"%s %10s %7d %7s\n", 
+				"%s %10s %8d %8s\n", 
 				p[i].birthday, p[i].name, p[i].age, next
 			);
 		} else {
