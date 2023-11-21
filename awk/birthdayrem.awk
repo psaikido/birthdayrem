@@ -61,12 +61,6 @@ END {
 	}
 }
 
-# function comp_func(i1, v1, i2, v2)
-# {
-#     # compare elements 1 and 2 in some fashion
-#     # return < 0; 0; or > 0
-#
-# }
 
 function isBefore(start, end) {
 	split(start, arStart, "-")
